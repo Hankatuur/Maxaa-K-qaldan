@@ -1,6 +1,6 @@
 import {ID, Query} from 'appwrite';
 import { INewUser } from "@/types";
-import { account, appwriteConfig, avatars, database } from './config';
+import { account, appwriteConfig, avatars,  databases } from './config';
 
 export async function createUseAccount (user:INewUser){
     try {
@@ -17,7 +17,7 @@ export async function createUseAccount (user:INewUser){
         name:newAccount.name,
         email:newAccount.email,
         username:user.username,
-        imageUrl:avatarUrl,
+        imageUrl: avatarUrl,
     })
 
     return newUser;
@@ -37,7 +37,7 @@ export async function saveUserToDB(user:{
 
 }) {
     try {
-        const newUser = await database.createDocument(
+        const newUser = await databases.createDocument(
             appwriteConfig.databaseId,
             appwriteConfig.userCollectionId,
             ID.unique(),
@@ -50,19 +50,42 @@ export async function saveUserToDB(user:{
     
 }
 
-export async function  SigInAccount(user:{email:string;password:string;}){
- try {
-    const session = await account.createEmailPasswordSession(user.email,user.password)
-    return session;
- } catch (error) {
-    console.log(error)
- }
-}
+export async function SigInAccount(user: { email: string; password: string }) {
+    try {
+      // Check if a session already exists
+      const currentSession = await account.getSession("current");
+  
+      if (currentSession) {
+        console.log("User is already logged in:", currentSession);
+        return currentSession; // Return the existing session
+      }
+    } catch (error) {
+      console.log("No active session found, proceeding to login...",error);
+    }
+  
+    try {
+      // Create a new session only if no active session exists
+      const session = await account.createEmailPasswordSession(user.email, user.password);
+      return session;
+    } catch (error) {
+      console.error("Log in error:",error);
+  }
+  }
+
+
+// export async function  SigInAccount(user:{email:string;password:string;}){
+//  try {
+//     const session = await account.createEmailPasswordSession(user.email,user.password)
+//     return session;
+//  } catch (error) {
+//     console.error(" Log in error",error)
+//  }
+// }
 export async function getCurrentUser(){
     try {
         const currentAccount = await account.get();
         if(!currentAccount) throw Error;
-        const currentUser = await database.listDocuments(
+        const currentUser = await databases.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.userCollectionId,
             [Query.equal('accountId',currentAccount.$id)]

@@ -56,8 +56,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(()=>{
         if(
+            localStorage.getItem('cookieFallback') === null ||
             localStorage.getItem('cookieFallback') === '[]'
-        ) navigate('/sign-in')
+        ) navigate('/sign-in');
         checkAuthUser();
     },[])
 
@@ -70,7 +71,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         checkAuthUser,
     };
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return( <AuthContext.Provider value={value}>
+        {children}
+        </AuthContext.Provider>
+    )
 };
 
 export default AuthProvider;
