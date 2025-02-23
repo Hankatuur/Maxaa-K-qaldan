@@ -50,40 +50,53 @@ export async function saveUserToDB(user:{
     
 }
 
-export async function SigInAccount(user: { email: string; password: string }) {
-    try {
-      // Check if a session already exists
-      const currentSession = await account.getSession("current");
+export async function  SigInAccount(user:{email:string;password:string;}){
+ try {
+    const session = await account.createEmailPasswordSession(user.email,user.password)
+    return session;
+ } catch (error) {
+    console.error(" Log in error",error)
+ }
+}
+// export async function SigInAccount(user: { email: string; password: string }) {
+//     try {
+//       // Check if a session already exists
+//       const currentSession = await account.getSession("current");
   
-      if (currentSession) {
-        console.log("User is already logged in:", currentSession);
-        return currentSession; // Return the existing session
-      }
+//       if (currentSession) {
+//         console.log("User is already logged in:", currentSession);
+//         return currentSession; // Return the existing session
+//       }
+//     } catch (error) {
+//       console.log("No active session found, proceeding to login...",error);
+//     }
+  
+//     try {
+//       // Create a new session only if no active session exists
+//       const session = await account.createEmailPasswordSession(user.email, user.password);
+//       return session;
+//     } catch (error) {
+//       console.error("Log in error:",error);
+//   }
+//   }
+
+export async function signOutAccount() {
+    try {
+        const session = await account.deleteSession("current");
+        return session;
     } catch (error) {
-      console.log("No active session found, proceeding to login...",error);
+        console.log(error);
     }
-  
-    try {
-      // Create a new session only if no active session exists
-      const session = await account.createEmailPasswordSession(user.email, user.password);
-      return session;
-    } catch (error) {
-      console.error("Log in error:",error);
-  }
-  }
+}
 
 
-// export async function  SigInAccount(user:{email:string;password:string;}){
-//  try {
-//     const session = await account.createEmailPasswordSession(user.email,user.password)
-//     return session;
-//  } catch (error) {
-//     console.error(" Log in error",error)
-//  }
-// }
+
+
 export async function getCurrentUser(){
+    
     try {
         const currentAccount = await account.get();
+        
         if(!currentAccount) throw Error;
         const currentUser = await databases.listDocuments(
             appwriteConfig.databaseId,
@@ -96,3 +109,24 @@ export async function getCurrentUser(){
         console.log(error);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export async function  SigInAccount(user:{email:string;password:string;}){
+//  try {
+//     const session = await account.createEmailPasswordSession(user.email,user.password)
+//     return session;
+//  } catch (error) {
+//     console.error(" Log in error",error)
+//  }
+// }

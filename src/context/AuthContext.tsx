@@ -11,7 +11,7 @@ export const INITIAL_USER: IUser = {
     imageUrl: '',
     bio: '',
 };
-
+ 
 const INITIAL_STATE: IContextType = {
     user: INITIAL_USER,
     isLoading: false,
@@ -28,11 +28,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
-
+  
     const checkAuthUser = async () => {
         setIsLoading(true);
         try {
             const currentAccount = await getCurrentUser();
+           
             if (currentAccount) {
                 setUser({
                     id: currentAccount.$id,
