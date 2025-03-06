@@ -10,18 +10,18 @@ import FileUploader from "../shared/FileUploader"
 import { Input } from "../ui/input"
 import { PostValidation } from "@/lib/Validations"
 import { Models } from "appwrite"
-import {createPost} from "@/lib/appwrite/api"
 import { useUserContext } from "@/context/AuthContext"
 import { useCreatePost, useUpdatePost } from "@/lib/react-queires/queriesAndMutations"
 import {  useToast } from "@/hooks/use-toast"
 
 type PostFormProps = {
     post ?: Models.Document;
-    action : 'Create' | 'Update'
+    action : 'Create' | 'Update';
 }
 
 const Postform = ({post,action}:PostFormProps) => {
-const {mutateAsync : createPost,isPending:isLoadingCreate} = useCreatePost();
+  const {mutateAsync: CREATEPOSTS ,isPending:isLoadingCreate} = useCreatePost();
+// const {mutateAsync : createPost,isPending:isLoadingCreate} = useCreatePost();
 const {mutateAsync : UpdatePost,isPending:isLoadingUpdate} = useUpdatePost ();
 
 const {user} = useUserContext();
@@ -54,9 +54,9 @@ const navigate = useNavigate();
           title : "please try again"
          })
        }
-       navigate(`/posts/${post.$id}`);
+       navigate(`/post/${post.$id}`);
     }
-    const newPost = await createPost({
+    const newPost = await CREATEPOSTS({
       ...values,
       userId: user.id,
     })
@@ -66,7 +66,7 @@ const navigate = useNavigate();
       })
     }
     navigate('/');
-    console.log(post?.imageUrl)
+    
   }
   return (
     <Form {...form}>

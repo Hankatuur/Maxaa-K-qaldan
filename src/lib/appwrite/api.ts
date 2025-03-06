@@ -101,8 +101,12 @@ export async function signOutAccount() {
 
 
 
-export async function createPost(post: INewPost) {
+export async function CREATEPOSTS(post: INewPost) {
     try {
+        if (!post.file || post.file.length === 0) {
+            throw new Error("No file provided");
+        }
+
         // Upload the image to storage
         const UploadedFile = await uploadFile(post.file[0]);
         
@@ -141,8 +145,8 @@ export async function createPost(post: INewPost) {
 
         return newPost;
     } catch (error) {
-        console.error("CreatePost Error:",error);
-}
+        console.error("CreatePost Error:", error);
+    }
 }
 
  // This function had error
@@ -186,6 +190,9 @@ export async function createPost(post: INewPost) {
 //      }
     
      export async function uploadFile(file:File){
+    if (!file) {
+        throw new Error("File parameter is missing");
+    }
     try {
         const uploadedFile = await storage.createFile(
             appwriteConfig.storageId,
@@ -372,6 +379,40 @@ export async function createPost(post: INewPost) {
         }
     }
 
+    export async function getInfinitePosts({pageParam}: 
+        {pageParam:number}){
+       
+            const queries:any[]= [Query.orderDesc("$updatedAt"),Query.limit(10)]
+            if(pageParam) {
+                queries.push(Query.cursorAfter(pageParam.toString()));
+            }
+            try {
+                const posts = await databases.listDocuments(
+                 appwriteConfig.databaseId,
+                 appwriteConfig.postCollectionId,
+                 queries
+                )
+                if(!posts) throw Error;
+                return posts;
+            } catch (error) {
+                console.log(error)
+            }
+    }
+    export async function SearchPosts(searchTerm:string){
+       
+           
+            try {
+                const posts = await databases.listDocuments(
+                 appwriteConfig.databaseId,
+                 appwriteConfig.postCollectionId,
+                 [Query.search('caption',searchTerm)]
+                )
+                if(!posts) throw Error;
+                return posts;
+            } catch (error) {
+                console.log(error)
+            }
+    }
 
 
 
