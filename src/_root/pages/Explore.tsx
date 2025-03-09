@@ -4,25 +4,34 @@ import SearchResult from '@/components/shared/SearchResult';
 import { Input } from '@/components/ui/input'
 import useDebounce from '@/HOOKSS/useDebouncing';
 import { useGetPosts, useSearchPosts } from '@/lib/react-queires/queriesAndMutations';
-import { useState } from 'react'
+import { useState,useEffect} from 'react'
+import{useInView} from 'react-intersection-observer';
+
+
 
 const Explore = () => {
-  const {data:posts,fetcheNexPage,hasNextPage} = useGetPosts();
+  const {ref,inView} = useInView();
+  const {data:posts,fetchNextPage,hasNextPage} = useGetPosts();
 const [searchValue, setSearchValue] = useState('')
 const debouncedValue = useDebounce(searchValue,500);
-const {data:searchePosts,isFetching:isSearchFetching} = useSearchPosts(debouncedValue)
+const {data:searchedPosts,isFetching:isSearchFetching} = useSearchPosts(debouncedValue)
 
+useEffect(()=>{
+  if(inView && !searchValue) fetchNextPage()
+
+},[inView,searchValue])
+if(!posts) {
+  return (
+    <div className="flex-center w-full h-full">
+     <Loader/>
+    </div>
+  )
+  
+}
  const ShouldSearchResult = searchValue !== '';
  const shouldShowPost = !ShouldSearchResult
   && posts?.pages.every((item)=>item?.documents.length === 0)
-  if(!posts) {
-    return (
-      <div className="flex-center w-full h-full">
-       <Loader/>
-      </div>
-    )
-    
-  }
+  
   return (
     <div className="explore-container">
       <div className="explore-inner_container">
@@ -47,13 +56,21 @@ const {data:searchePosts,isFetching:isSearchFetching} = useSearchPosts(debounced
       </div>
       <div className="flex flex-wrap gap-9 w-full max-w-5xl">
        {ShouldSearchResult ? (
-        <SearchResult/>
+        <SearchResult 
+        isSearchFetching = {isSearchFetching}
+        searchedPosts =  {searchedPosts}
+        />
        ):shouldShowPost ?(
         <p className="text-light-4 mt-10 text-center w-full">End Of Post</p>
        ): posts.pages.map((item,index)=>
         <GridPostList key={`page-${index}`} posts={item?.documents}/>
         )}
       </div>
+      {hasNextPage && !searchValue && (
+        <div ref={ref} className='mt-10'>
+        <Loader/>
+        </div>
+      )}
     </div>
   )
 }

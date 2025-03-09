@@ -164,7 +164,7 @@ import { string } from 'zod'
  
  export const useSearchPosts = (searchTerm:string) => {
    return useQuery({
-    queryKey: [QUERY_KEYS.SEARCH_POSTS],
+    queryKey: [QUERY_KEYS.SEARCH_POSTS,searchTerm],
     queryFn: () => SearchPosts(searchTerm),
     enabled: !!searchTerm
    })
